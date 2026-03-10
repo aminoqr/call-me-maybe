@@ -1,0 +1,11 @@
+[flake8]
+exclude =
+    .venv,
+    .git,
+    __pycache__,
+    .mypy_cache,
+    .pytest_cache,
+    build,
+    dist,
+    llm_sdk
+max-line-length = 79
