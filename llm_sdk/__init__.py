@@ -43,7 +43,17 @@ class Small_LLM_Model:
             if torch.backends.mps.is_available():
                 device = "mps"
             elif torch.cuda.is_available():
-                device = "cuda"
+                # Older GPUs (e.g. Pascal sm_61) may be visible but
+                # unsupported by the installed PyTorch CUDA build.
+                try:
+                    major, minor = torch.cuda.get_device_capability(0)
+                    # Current torch wheels typically need >= sm_70
+                    if (major, minor) >= (7, 0):
+                        device = "cuda"
+                    else:
+                        device = "cpu"
+                except Exception:
+                    device = "cpu"
             else:
                 device = "cpu"
         self._device = device
