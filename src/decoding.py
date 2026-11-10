@@ -6,9 +6,26 @@ JSON output, guaranteeing well-formed results.
 """
 
 import json
-from typing import Dict, List, Optional, Set, Tuple
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
-from llm_sdk import Small_LLM_Model
+import numpy as np
+import numpy.typing as npt
+
+if TYPE_CHECKING:  # pragma: no cover - typing only, keeps torch optional
+    from llm_sdk import Small_LLM_Model
+
+Logits = Union[Sequence[float], npt.NDArray[Any]]
+TokenIds = Union[Sequence[int], npt.NDArray[Any]]
 
 
 def _find_unescaped_quote(s: str) -> Optional[int]:
@@ -43,6 +60,25 @@ def _json_unescape(s: str) -> str:
         return s
 
 
+def masked_argmax(logits: Logits, valid_token_ids: TokenIds) -> int:
+    """Return the id of the highest-scoring token among *valid_token_ids*.
+
+    Equivalent to ``argmax(apply_logit_mask(logits, valid))`` but never
+    materialises a vocabulary-sized masked copy, which matters because it
+    runs once per generated token.  Ties resolve to the first id in
+    *valid_token_ids*.
+
+    Raises:
+        ValueError: If no id in *valid_token_ids* falls inside the vocab.
+    """
+    ids = np.asarray(valid_token_ids, dtype=np.int64)
+    ids = ids[(ids >= 0) & (ids < len(logits))]
+    if ids.size == 0:
+        raise ValueError("no valid token ids inside the vocabulary")
+    scores = np.asarray(logits)[ids]
+    return int(ids[int(np.argmax(scores))])
+
+
 def apply_logit_mask(
     logits: List[float], valid_token_ids: List[int]
 ) -> List[float]:
@@ -67,7 +103,7 @@ def apply_logit_mask(
 
 
 def select_function(
-    model: Small_LLM_Model,
+    model: "Small_LLM_Model",
     input_ids: List[int],
     prefix: List[int],
     func_seqs: Dict[str, List[int]],
@@ -113,8 +149,7 @@ def select_function(
         logits = model.get_logits_from_input_ids(
             input_ids + prefix + tokens
         )
-        masked = apply_logit_mask(logits, list(valid))
-        pick = masked.index(max(masked))
+        pick = masked_argmax(logits, sorted(valid))
         tokens.append(pick)
         candidates = [
             c for c in candidates if func_seqs[c][pos] == pick
@@ -129,10 +164,10 @@ def select_function(
 
 
 def gen_string_value(
-    model: Small_LLM_Model,
+    model: "Small_LLM_Model",
     input_ids: List[int],
     ctx: List[int],
-    str_tids: List[int],
+    str_tids: TokenIds,
     max_tokens: int = 50,
 ) -> Tuple[str, List[int]]:
     """Generate a JSON string value, stopping at a closing quote.
@@ -156,8 +191,7 @@ def gen_string_value(
         logits = model.get_logits_from_input_ids(
             input_ids + ctx + vtokens
         )
-        masked = apply_logit_mask(logits, str_tids)
-        pick = masked.index(max(masked))
+        pick = masked_argmax(logits, str_tids)
         vtokens.append(pick)
 
         decoded = model.decode(vtokens)
@@ -173,11 +207,11 @@ def gen_string_value(
 
 
 def gen_number_value(
-    model: Small_LLM_Model,
+    model: "Small_LLM_Model",
     input_ids: List[int],
     ctx: List[int],
-    first_tids: List[int],
-    cont_tids: List[int],
+    first_tids: TokenIds,
+    cont_tids: TokenIds,
     stop_tids: Set[int],
     max_tokens: int = 20,
 ) -> Tuple[float, List[int]]:
@@ -200,17 +234,16 @@ def gen_number_value(
         ``(float_value, generated_tokens)`` tuple.
     """
     vtokens: List[int] = []
+    cont_or_stop = np.concatenate([
+        np.asarray(cont_tids, dtype=np.int64),
+        np.asarray(sorted(stop_tids), dtype=np.int64),
+    ])
     for _ in range(max_tokens):
-        valid = (
-            first_tids
-            if not vtokens
-            else cont_tids + list(stop_tids)
-        )
+        valid = first_tids if not vtokens else cont_or_stop
         logits = model.get_logits_from_input_ids(
             input_ids + ctx + vtokens
         )
-        masked = apply_logit_mask(logits, valid)
-        pick = masked.index(max(masked))
+        pick = masked_argmax(logits, valid)
         if pick in stop_tids:
             break
         vtokens.append(pick)
@@ -229,7 +262,7 @@ def gen_number_value(
 
 
 def gen_bool_value(
-    model: Small_LLM_Model,
+    model: "Small_LLM_Model",
     input_ids: List[int],
     ctx: List[int],
     true_toks: List[int],

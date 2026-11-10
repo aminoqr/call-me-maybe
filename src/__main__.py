@@ -9,25 +9,15 @@ import sys
 import json
 import argparse
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 
 from tqdm import tqdm
 
 from pydantic import ValidationError
 
-from src.models import (
-    FunctionDefinition,
-    FunctionCallResult,
-    PromptInput,
-)
-from src.utils import load_json_file, build_func_prompt
-from src.decoding import (
-    select_function,
-    gen_string_value,
-    gen_number_value,
-    gen_bool_value,
-)
-from llm_sdk import Small_LLM_Model
+from src.models import FunctionDefinition, PromptInput
+from src.utils import load_json_file
+from src.pipeline import FunctionCaller
 
 
 def main() -> None:
@@ -47,6 +37,11 @@ def main() -> None:
     parser.add_argument(
         "--output",
         default="data/output/function_calling_results.json",
+    )
+    parser.add_argument(
+        "--no-kv-cache",
+        action="store_true",
+        help="disable the KV cache (slower; for benchmarking)",
     )
     args = parser.parse_args()
 
@@ -88,59 +83,16 @@ def main() -> None:
         sys.exit(1)
 
     # ── 3. LLM Initialisation & Vocabulary Setup ─────────
+    # Imported lazily: torch is heavy and argument/data errors above
+    # should fail fast without it.
+    from llm_sdk import Small_LLM_Model
+    from src.kvcache import CachedModel
+
     print("Initializing the LLM model...")
-    model = Small_LLM_Model()
-
-    vocab_path = model.get_path_to_vocab_file()
-    with open(vocab_path, 'r', encoding='utf-8') as f:
-        vocab = json.load(f)
-    id_to_token: Dict[int, str] = {
-        int(v): k for k, v in vocab.items()
-    }
-
-    # Structural JSON token sequences
-    name_key = model.encode('"name": "')[0].tolist()
-    params_pfx = model.encode(
-        '", "parameters": {'
-    )[0].tolist()
-
-    # Function-name token sequences (for the trie)
-    func_seqs: Dict[str, List[int]] = {
-        fn.name: model.encode(fn.name)[0].tolist()
-        for fn in functions
-    }
-
-    # Boolean literals
-    true_toks = model.encode('true')[0].tolist()
-    false_toks = model.encode('false')[0].tolist()
-
-    # String-safe token IDs (no control characters)
-    sp = '\u0120'
-    str_tids: List[int] = [
-        tid for tid, tok in id_to_token.items()
-        if not any(
-            ord(c) < 0x20 for c in tok.replace(sp, ' ')
-        )
-    ]
-
-    # Number-safe token IDs
-    num_chars = '0123456789.+-eE'
-    num_first: List[int] = []
-    num_cont: List[int] = []
-    for tid, tok in id_to_token.items():
-        cleaned = tok.replace(sp, '')
-        if cleaned and all(c in num_chars for c in cleaned):
-            num_first.append(tid)
-            if not tok.startswith(sp):
-                num_cont.append(tid)
-
-    # Structural stop tokens (, and })
-    stop_tids: Set[int] = {
-        tid for tid, tok in id_to_token.items()
-        if tok.replace(sp, ' ').strip() in (',', '}')
-    }
-
-    func_desc = build_func_prompt(functions)
+    model = CachedModel(
+        Small_LLM_Model(), use_cache=not args.no_kv_cache
+    )
+    caller = FunctionCaller.from_model(model, functions)
 
     # ── 4. Processing Loop ───────────────────────────────
     results: List[Dict[str, Any]] = []
@@ -153,125 +105,19 @@ def main() -> None:
 
             tqdm.write(f"\nProcessing: {p.prompt}")
             try:
-                prompt_text = (
-                    "Available functions:\n"
-                    f"{func_desc}\n\n"
-                    f"User request: {p.prompt}\n"
-                    "Select the single most appropriate function "
-                    "and copy ALL parameter values verbatim from "
-                    "the request.\n"
-                    'Function Call: {"'
-                )
-                inp = model.encode(
-                    prompt_text
-                )[0].tolist()
-
-                # Phase 1 – force "name": "
-                gen = list(name_key)
-
-                # Phase 2 – constrained function selection
-                fname, fn_toks = select_function(
-                    model, inp, gen, func_seqs
-                )
-                gen.extend(fn_toks)
-                tqdm.write(f"  Function: {fname}")
-
-                # Phase 3 – force ", "parameters": {
-                gen.extend(params_pfx)
-
-                # Phase 4 – constrained parameter generation
-                sel_fn = next(
-                    (fn for fn in functions
-                     if fn.name == fname),
-                    None,
-                )
-                if sel_fn is None:
-                    tqdm.write(
-                        f"  Warning: '{fname}' "
-                        "not found, skipping."
-                    )
-                    continue
-
-                pitems = list(sel_fn.parameters.items())
-                values: dict[str, Any] = {}
-
-                for i, (pname, pdef) in enumerate(pitems):
-                    if i > 0:
-                        sep = model.encode(
-                            ', '
-                        )[0].tolist()
-                        gen.extend(sep)
-
-                    if pdef.type == "string":
-                        kt = model.encode(
-                            f'"{pname}": "'
-                        )[0].tolist()
-                        gen.extend(kt)
-                        val, vt = gen_string_value(
-                            model, inp, gen, str_tids
-                        )
-                        gen.extend(vt)
-                        values[pname] = val
-
-                    elif pdef.type == "boolean":
-                        kt = model.encode(
-                            f'"{pname}": '
-                        )[0].tolist()
-                        gen.extend(kt)
-                        bval, bvt = gen_bool_value(
-                            model, inp, gen,
-                            true_toks, false_toks,
-                        )
-                        gen.extend(bvt)
-                        values[pname] = bval
-
-                    elif pdef.type == "integer":
-                        kt = model.encode(
-                            f'"{pname}": '
-                        )[0].tolist()
-                        gen.extend(kt)
-                        nval, nvt = gen_number_value(
-                            model, inp, gen,
-                            num_first, num_cont,
-                            stop_tids,
-                        )
-                        gen.extend(nvt)
-                        values[pname] = int(nval)
-
-                    else:  # number (default)
-                        kt = model.encode(
-                            f'"{pname}": '
-                        )[0].tolist()
-                        gen.extend(kt)
-                        nval, nvt = gen_number_value(
-                            model, inp, gen,
-                            num_first, num_cont,
-                            stop_tids,
-                        )
-                        gen.extend(nvt)
-                        values[pname] = nval
-
-                # Build and validate result
-                result: dict[str, Any] = {
-                    "prompt": p.prompt,
-                    "name": fname,
-                    "parameters": values,
-                }
-                try:
-                    FunctionCallResult(**result)
-                    results.append(result)
-                    tqdm.write(f"  Result: {result}")
-                except ValidationError as e:
-                    tqdm.write(
-                        "  Validation error, "
-                        f"skipping: {e}"
-                    )
-
+                outcome = caller.call(p.prompt)
             except Exception as e:
                 tqdm.write(
                     "  Error processing prompt, "
                     f"skipping: {e}"
                 )
+                continue
+            if outcome.result is None:
+                tqdm.write(f"  Skipping: {outcome.error}")
+                continue
+            results.append(outcome.result)
+            tqdm.write(f"  Function: {outcome.result['name']}")
+            tqdm.write(f"  Result: {outcome.result}")
 
     except KeyboardInterrupt:
         tqdm.write("\nInterrupted. Saving partial results...")
