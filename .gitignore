@@ -38,3 +38,7 @@ coverage.xml
 
 # Output (generated at runtime)
 data/output/
+
+# Local tooling
+.coverage
+.ruff_cache/
