@@ -1,0 +1,521 @@
+[
+  {
+    "prompt": "What is the product of 3 and 5?",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 3.0,
+      "b": 5.0
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "What is the product of 12 and 4?",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 12.0,
+      "b": 4.0
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Is 4 an even number?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 4
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Is 7 an even number?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 7
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Calculate compound interest on 1234567.89 at 0.0375 rate for 23 years",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 1234567.89,
+      "rate": 0.0375,
+      "years": 23
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Execute SQL query 'SELECT * FROM users' on the production database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "SELECT * FROM users",
+      "database": "production"
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Run the query 'INSERT INTO logs VALUES (1, 2, 3)' on the system database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "INSERT INTO logs VALUES (1, 2, 3)",
+      "database": "system"
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Read the file at /home/user/data.json with utf-8 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "/home/user/data.json",
+      "encoding": "utf-8"
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Read C:\\Users\\john\\config.ini with latin-1 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "C:\\Users\\john\\config.ini",
+      "encoding": "latin-1"
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Format template: Hello {user}'s profile!",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "Hello {user}'s profile!"
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Format template: Say \"hello\" to {name}",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "Say \"hello\" to {name}"
+    },
+    "split": "dev"
+  },
+  {
+    "prompt": "Multiply 7 by 8",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 7.0,
+      "b": 8.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "What is 2.5 times 4?",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 2.5,
+      "b": 4.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Compute the product of -3 and 9",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": -3.0,
+      "b": 9.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "I need 100 multiplied by 0.25",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 100.0,
+      "b": 0.25
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "What do you get when you multiply 1500 and 3000?",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 1500.0,
+      "b": 3000.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Product of 6 and 7",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 6.0,
+      "b": 7.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Calculate 0.5 times 0.5",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 0.5,
+      "b": 0.5
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Multiply 123456 by 789",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": 123456.0,
+      "b": 789.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "What is -4.2 times -5?",
+    "name": "fn_multiply_numbers",
+    "parameters": {
+      "a": -4.2,
+      "b": -5.0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Is 10 even?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 10
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Check whether 15 is an even number",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 15
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Is 0 even?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 0
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Is the number 2024 even?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 2024
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Is -8 an even number?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": -8
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Is 99999 even or odd?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 99999
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Check if 1000000 is even",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 1000000
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Is 33 an even integer?",
+    "name": "fn_is_even",
+    "parameters": {
+      "n": 33
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Calculate compound interest on 5000 at 0.05 rate for 10 years",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 5000.0,
+      "rate": 0.05,
+      "years": 10
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "What is the compound interest for a principal of 1000 with a rate of 0.07 over 5 years?",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 1000.0,
+      "rate": 0.07,
+      "years": 5
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Compute compound interest: principal 250000, rate 0.0425, 30 years",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 250000.0,
+      "rate": 0.0425,
+      "years": 30
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Compound interest on 10000.50 at rate 0.1 for 2 years",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 10000.5,
+      "rate": 0.1,
+      "years": 2
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Find the compound interest on 750 at 0.025 for 15 years",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 750.0,
+      "rate": 0.025,
+      "years": 15
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "If I invest 20000 at a rate of 0.06 for 8 years, what is the compound interest?",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 20000.0,
+      "rate": 0.06,
+      "years": 8
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Calculate compound interest on 100 at 0.5 rate for 1 year",
+    "name": "fn_calculate_compound_interest",
+    "parameters": {
+      "principal": 100.0,
+      "rate": 0.5,
+      "years": 1
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Execute SQL query 'DELETE FROM sessions WHERE expired = 1' on the staging database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "DELETE FROM sessions WHERE expired = 1",
+      "database": "staging"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Run the query 'SELECT name, email FROM customers' on the crm database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "SELECT name, email FROM customers",
+      "database": "crm"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Execute 'UPDATE users SET active = 0' on the analytics database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "UPDATE users SET active = 0",
+      "database": "analytics"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Run SQL query 'SELECT COUNT(*) FROM orders' on the sales database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "SELECT COUNT(*) FROM orders",
+      "database": "sales"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "On the test database, execute the query 'DROP TABLE temp_data'",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "DROP TABLE temp_data",
+      "database": "test"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Execute SQL query 'SELECT * FROM products WHERE price > 100' on the inventory database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "SELECT * FROM products WHERE price > 100",
+      "database": "inventory"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Run 'CREATE TABLE logs (id INT, msg TEXT)' on the dev database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "CREATE TABLE logs (id INT, msg TEXT)",
+      "database": "dev"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Execute the query 'SELECT * FROM users WHERE name = \"Bob\"' on the production database",
+    "name": "fn_execute_sql_query",
+    "parameters": {
+      "query": "SELECT * FROM users WHERE name = \"Bob\"",
+      "database": "production"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Read the file at /etc/hosts with utf-8 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "/etc/hosts",
+      "encoding": "utf-8"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Read /var/log/syslog using ascii encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "/var/log/syslog",
+      "encoding": "ascii"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Open the file ./notes/todo.txt with utf-16 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "./notes/todo.txt",
+      "encoding": "utf-16"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Read the file at C:\\Program Files\\App\\settings.cfg with utf-8 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "C:\\Program Files\\App\\settings.cfg",
+      "encoding": "utf-8"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Read ~/documents/report.pdf with latin-1 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "~/documents/report.pdf",
+      "encoding": "latin-1"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Read the file at /tmp/output.csv with utf-8 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "/tmp/output.csv",
+      "encoding": "utf-8"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Load the file data/input/users.json using utf-8",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "data/input/users.json",
+      "encoding": "utf-8"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Read D:\\backup\\2024\\log.txt with cp1252 encoding",
+    "name": "fn_read_file",
+    "parameters": {
+      "path": "D:\\backup\\2024\\log.txt",
+      "encoding": "cp1252"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: Dear {name}, your order {order_id} has shipped.",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "Dear {name}, your order {order_id} has shipped."
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: {greeting}, world!",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "{greeting}, world!"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format the template: Total: ${amount}",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "Total: ${amount}"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: It's {time} o'clock",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "It's {time} o'clock"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: Path is C:\\temp\\{file}",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "Path is C:\\temp\\{file}"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: 50% off for {user}",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "50% off for {user}"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: {a} + {b} = {c}",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "{a} + {b} = {c}"
+    },
+    "split": "heldout"
+  },
+  {
+    "prompt": "Format template: He said \"hi\" to {friend}'s dog",
+    "name": "fn_format_template",
+    "parameters": {
+      "template": "He said \"hi\" to {friend}'s dog"
+    },
+    "split": "heldout"
+  }
+]
